@@ -273,6 +273,37 @@ select.input-field{appearance:none;-webkit-appearance:none;background-image:url(
 .scroll-reveal{opacity:0;transform:translateY(24px);transition:opacity 700ms ease,transform 700ms cubic-bezier(.2,.7,.25,1)}
 .scroll-reveal.visible{opacity:1;transform:translateY(0)}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}
+
+/* ─── Multi-step form ─── */
+.mf-progress{margin-bottom:28px}
+.mf-step-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.mf-step-label{font-size:.74rem;font-weight:700;color:var(--blue-500);letter-spacing:.12em;text-transform:uppercase}
+.mf-step-name{font-size:.84rem;color:var(--ink-muted);font-weight:500;text-align:right}
+.mf-bar{height:4px;background:var(--silver-100);border-radius:2px;overflow:hidden;margin-bottom:4px}
+.mf-bar-fill{height:100%;background:linear-gradient(90deg,var(--blue-500),var(--blue-600));border-radius:2px;transition:width .4s ease}
+.mf-panel{display:none}
+.mf-panel.active{display:block}
+.mf-nav{display:flex;align-items:center;justify-content:space-between;margin-top:28px;gap:12px}
+.mf-nav.solo{justify-content:flex-end}
+.btn-ghost{background:transparent;border:1.5px solid var(--silver-200);color:var(--ink-soft);padding:12px 20px;border-radius:var(--radius);font-size:.9rem;font-weight:600;cursor:pointer;transition:all var(--t)}
+.btn-ghost:hover{border-color:var(--ink-muted);color:var(--ink)}
+.trust-signal{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.18);border-radius:var(--radius);padding:12px 16px;margin-bottom:24px;display:flex;align-items:flex-start;gap:10px}
+.trust-signal svg{flex-shrink:0;color:var(--success);margin-top:1px}
+.trust-signal p{font-size:.84rem;color:var(--ink-muted);line-height:1.5;margin:0}
+.checkbox-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+@media(max-width:480px){.checkbox-grid{grid-template-columns:1fr}}
+.check-pill{position:relative}
+.check-pill input{position:absolute;opacity:0;pointer-events:none}
+.check-pill label{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--silver-50);border:1.5px solid var(--silver-100);border-radius:var(--radius);font-size:.87rem;font-weight:500;cursor:pointer;transition:all var(--t);color:var(--ink-soft);line-height:1.3}
+.check-pill label::before{content:'';width:16px;height:16px;min-width:16px;border:1.5px solid var(--silver-200);border-radius:4px;transition:all var(--t)}
+.check-pill input:checked+label{border-color:var(--blue-500);background:rgba(37,99,235,.06);color:var(--blue-500)}
+.check-pill input:checked+label::before{background:var(--blue-500);border-color:var(--blue-500)}
+.char-count{font-size:.75rem;color:var(--ink-muted);text-align:right;margin-top:4px}
+.input-error{border-color:#ef4444!important;box-shadow:0 0 0 3px rgba(239,68,68,.1)!important}
+.radio-error .radio-pill label{border-color:#ef4444}
+.mf-panel .radio-row{flex-direction:column;gap:8px}
+.mf-panel .radio-row .radio-pill{min-width:unset;flex:unset}
+.mf-panel .radio-row .radio-pill label{text-align:left}
 </style>
 </head>
 <body>
@@ -554,84 +585,369 @@ select.input-field{appearance:none;-webkit-appearance:none;background-image:url(
       </div>
 
       <form class="full-form" id="full-offer-form" novalidate>
-        <span class="form-step-label">Takes 90 seconds</span>
-        <h3>Get Your Free Cash Offer</h3>
-        <p class="form-card-sub">We'll review your property and reach out within 24 hours.</p>
+        <!-- Progress indicator -->
+        <div class="mf-progress">
+          <div class="mf-step-meta">
+            <span class="mf-step-label">Step <span id="mf-cur">1</span> of 7</span>
+            <span class="mf-step-name" id="mf-step-name">Property Hook</span>
+          </div>
+          <div class="mf-bar"><div class="mf-bar-fill" id="mf-bar-fill" style="width:14.3%"></div></div>
+        </div>
 
-        <div class="fieldset-group">
-          <div class="fieldset-title">Property Information</div>
+        <!-- STEP 1: Property Hook -->
+        <div class="mf-panel active" data-step="1">
+          <h3>Tell us about your property</h3>
+          <p class="form-card-sub">Start with the address — takes about 90 seconds total.</p>
           <div class="input-group">
             <label class="input-label" for="full-address">Property Address *</label>
             <input type="text" id="full-address" name="address" class="input-field" placeholder="Street address" required autocomplete="street-address">
           </div>
-          <div class="form-row cols-2">
+          <div class="form-row cols-2" style="margin-top:16px">
             <div class="input-group"><label class="input-label" for="full-city">City *</label><input type="text" id="full-city" name="city" class="input-field" placeholder="City" required autocomplete="address-level2"></div>
-            <div class="input-group"><label class="input-label" for="full-state">State *</label><input type="text" id="full-state" name="state" class="input-field" placeholder="State" required autocomplete="address-level1" maxlength="2"></div>
+            <div class="input-group"><label class="input-label" for="full-state">State *</label><input type="text" id="full-state" name="state" class="input-field" placeholder="ST" required autocomplete="address-level1" maxlength="2"></div>
           </div>
-          <div class="form-row cols-3">
-            <div class="input-group"><label class="input-label" for="full-zip">ZIP *</label><input type="text" id="full-zip" name="zip" class="input-field" placeholder="ZIP" required autocomplete="postal-code" inputmode="numeric" maxlength="5"></div>
-            <div class="input-group"><label class="input-label" for="full-beds">Bedrooms</label><select id="full-beds" name="bedrooms" class="input-field"><option value="">Select</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5+</option></select></div>
-            <div class="input-group"><label class="input-label" for="full-baths">Bathrooms</label><select id="full-baths" name="bathrooms" class="input-field"><option value="">Select</option><option>1</option><option>1.5</option><option>2</option><option>2.5</option><option>3</option><option>3.5+</option></select></div>
+          <div class="form-row cols-2" style="margin-top:16px">
+            <div class="input-group"><label class="input-label" for="full-zip">ZIP Code *</label><input type="text" id="full-zip" name="zip" class="input-field" placeholder="ZIP" required autocomplete="postal-code" inputmode="numeric" maxlength="5"></div>
+            <div class="input-group"><label class="input-label" for="mf-name">Your Name *</label><input type="text" id="mf-name" name="name" class="input-field" placeholder="Full name" required autocomplete="name"></div>
           </div>
-          <div class="input-group">
-            <label class="input-label" for="full-property-type">Property Type *</label>
-            <select id="full-property-type" name="propertyType" class="input-field" required>
-              <option value="">Select property type</option>
-              <option>Single-family home</option><option>Multi-family (2–4 units)</option><option>Condo / Townhouse</option><option>Mobile / Manufactured</option><option>Land / Lot</option>
-            </select>
+          <div class="input-group" style="margin-top:16px">
+            <label class="input-label" for="full-phone-2">Best Phone Number *</label>
+            <input type="tel" id="full-phone-2" name="phone" class="input-field" placeholder="(555) 123-4567" required autocomplete="tel">
           </div>
-          <div class="input-group">
-            <label class="input-label">Property Condition</label>
-            <div class="radio-row">
-              <div class="radio-pill"><input type="radio" id="cond-1" name="condition" value="Excellent"><label for="cond-1">Excellent</label></div>
-              <div class="radio-pill"><input type="radio" id="cond-2" name="condition" value="Good"><label for="cond-2">Good</label></div>
-              <div class="radio-pill"><input type="radio" id="cond-3" name="condition" value="Fair"><label for="cond-3">Fair</label></div>
-              <div class="radio-pill"><input type="radio" id="cond-4" name="condition" value="Needs work"><label for="cond-4">Needs work</label></div>
-            </div>
+          <div class="input-group" style="margin-top:16px">
+            <label class="input-label" for="full-email">Email <span style="color:var(--ink-muted);font-weight:400">(optional — for written offer)</span></label>
+            <input type="email" id="full-email" name="email" class="input-field" placeholder="you@email.com" autocomplete="email">
+          </div>
+          <div class="mf-nav solo">
+            <button type="button" class="btn btn-primary mf-next">See What We Can Do &#8594;</button>
           </div>
         </div>
 
-        <div class="fieldset-group">
-          <div class="fieldset-title">Your Situation</div>
+        <!-- STEP 2: Property Snapshot -->
+        <div class="mf-panel" data-step="2">
+          <h3>About the property</h3>
+          <p class="form-card-sub">Quick details — all dropdowns, no typing.</p>
           <div class="input-group">
-            <label class="input-label" for="full-reason">Reason for Selling *</label>
-            <select id="full-reason" name="reason" class="input-field" required>
+            <label class="input-label" for="mf-type">Property Type *</label>
+            <select id="mf-type" name="propertyType" class="input-field" required>
+              <option value="">Select type</option>
+              <option>Single-family home</option>
+              <option>Townhouse</option>
+              <option>Condo</option>
+              <option>Duplex</option>
+              <option>Triplex / Fourplex</option>
+              <option>Mobile / Manufactured home</option>
+              <option>Vacant land</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-row cols-2" id="mf-beds-baths" style="margin-top:16px">
+            <div class="input-group">
+              <label class="input-label" for="mf-beds">Bedrooms *</label>
+              <select id="mf-beds" name="bedrooms" class="input-field" required>
+                <option value="">Select</option>
+                <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6+</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label class="input-label" for="mf-baths">Bathrooms *</label>
+              <select id="mf-baths" name="bathrooms" class="input-field" required>
+                <option value="">Select</option>
+                <option>1</option><option>1.5</option><option>2</option><option>2.5</option><option>3</option><option>3.5</option><option>4+</option>
+              </select>
+            </div>
+          </div>
+          <div class="input-group" style="margin-top:16px">
+            <label class="input-label" for="mf-sqft">Approximate Square Footage *</label>
+            <select id="mf-sqft" name="sqft" class="input-field" required>
+              <option value="">Select range</option>
+              <option>Under 800 sq ft</option>
+              <option>800 &#8211; 1,200 sq ft</option>
+              <option>1,200 &#8211; 1,600 sq ft</option>
+              <option>1,600 &#8211; 2,000 sq ft</option>
+              <option>2,000 &#8211; 2,500 sq ft</option>
+              <option>2,500 &#8211; 3,000 sq ft</option>
+              <option>3,000 &#8211; 4,000 sq ft</option>
+              <option>4,000+ sq ft</option>
+              <option>Not sure</option>
+            </select>
+          </div>
+          <div class="input-group" style="margin-top:16px">
+            <label class="input-label" for="mf-year">About When Was It Built? <span style="color:var(--ink-muted);font-weight:400">(optional)</span></label>
+            <select id="mf-year" name="yearBuilt" class="input-field">
+              <option value="">Select</option>
+              <option>Pre-1950</option><option>1950s</option><option>1960s</option><option>1970s</option><option>1980s</option><option>1990s</option><option>2000s</option><option>2010+</option><option>Not sure</option>
+            </select>
+          </div>
+          <div class="mf-nav">
+            <button type="button" class="btn-ghost mf-back">&#8592; Back</button>
+            <button type="button" class="btn btn-primary mf-next">Continue &#8594;</button>
+          </div>
+        </div>
+
+        <!-- STEP 3: Your Situation -->
+        <div class="mf-panel" data-step="3">
+          <h3>Your situation</h3>
+          <p class="form-card-sub">The more we know, the better we can help.</p>
+          <div class="input-group">
+            <label class="input-label" for="mf-reason">What&#8217;s the main reason you&#8217;re considering selling? *</label>
+            <select id="mf-reason" name="reason" class="input-field" required>
               <option value="">Select reason</option>
-              <option>Inherited property</option><option>Facing foreclosure</option><option>Divorce or separation</option><option>Relocating</option><option>Tired landlord</option><option>Major repairs needed</option><option>Behind on payments</option><option>Downsizing or retiring</option><option>Vacant property</option><option>Other</option>
+              <option>Inherited the property</option>
+              <option>Going through divorce</option>
+              <option>Job relocation</option>
+              <option>Tired of being a landlord</option>
+              <option>Behind on payments / facing foreclosure</option>
+              <option>Property needs repairs I can&#8217;t afford</option>
+              <option>Health or family issues</option>
+              <option>Want to downsize</option>
+              <option>Need to settle an estate</option>
+              <option>Bankruptcy / financial hardship</option>
+              <option>Just exploring options</option>
+              <option>Other</option>
             </select>
           </div>
-          <div class="input-group">
-            <label class="input-label" for="full-timeline">How Soon Do You Need to Sell? *</label>
-            <select id="full-timeline" name="timeline" class="input-field" required>
+          <div class="input-group" style="margin-top:16px">
+            <label class="input-label" for="mf-timeline">How soon would you like to sell? *</label>
+            <select id="mf-timeline" name="timeline" class="input-field" required>
               <option value="">Select timeline</option>
-              <option>ASAP — within 7 days</option><option>Within 30 days</option><option>30–60 days</option><option>60–90 days</option><option>Just exploring my options</option>
+              <option>As soon as possible (within 7 days)</option>
+              <option>Within 30 days</option>
+              <option>1 &#8211; 3 months</option>
+              <option>3 &#8211; 6 months</option>
+              <option>6+ months</option>
+              <option>Just exploring</option>
             </select>
           </div>
-          <div class="input-group">
-            <label class="input-label">Are you the property owner?</label>
-            <div class="radio-row">
-              <div class="radio-pill"><input type="radio" id="own-1" name="owner" value="Yes"><label for="own-1">Yes</label></div>
-              <div class="radio-pill"><input type="radio" id="own-2" name="owner" value="Co-owner"><label for="own-2">Co-owner</label></div>
-              <div class="radio-pill"><input type="radio" id="own-3" name="owner" value="Heir"><label for="own-3">Heir / Executor</label></div>
-              <div class="radio-pill"><input type="radio" id="own-4" name="owner" value="No"><label for="own-4">No</label></div>
+          <div class="input-group" style="margin-top:16px">
+            <label class="input-label" for="mf-challenge">What&#8217;s the biggest challenge you&#8217;re facing with this property? <span style="color:var(--ink-muted);font-weight:400">(optional)</span></label>
+            <textarea id="mf-challenge" name="challenge" class="input-field" rows="3" maxlength="500" placeholder="Share as much or as little as you&#8217;d like&#8230;" style="resize:vertical"></textarea>
+            <div class="char-count"><span id="mf-challenge-ct">0</span> / 500</div>
+          </div>
+          <div class="mf-nav">
+            <button type="button" class="btn-ghost mf-back">&#8592; Back</button>
+            <button type="button" class="btn btn-primary mf-next">Continue &#8594;</button>
+          </div>
+        </div>
+
+        <!-- STEP 4: Property Condition -->
+        <div class="mf-panel" data-step="4">
+          <h3>Property condition</h3>
+          <p class="form-card-sub">Honest answers help us build a more accurate offer.</p>
+          <div class="input-group" id="mf-cond-wrap">
+            <label class="input-label">How would you describe the property&#8217;s overall condition? *</label>
+            <div class="radio-row" id="mf-cond-radio">
+              <div class="radio-pill"><input type="radio" id="cond-1" name="condition" value="Move-in ready, no repairs needed"><label for="cond-1">Move-in ready, no repairs needed</label></div>
+              <div class="radio-pill"><input type="radio" id="cond-2" name="condition" value="Mostly good, some cosmetic updates needed"><label for="cond-2">Mostly good, some cosmetic updates needed</label></div>
+              <div class="radio-pill"><input type="radio" id="cond-3" name="condition" value="Needs moderate repairs (kitchen, bath, roof, etc.)"><label for="cond-3">Needs moderate repairs (kitchen, bath, roof, etc.)</label></div>
+              <div class="radio-pill"><input type="radio" id="cond-4" name="condition" value="Needs significant repairs / not livable as-is"><label for="cond-4">Needs significant repairs / not livable as-is</label></div>
+              <div class="radio-pill"><input type="radio" id="cond-5" name="condition" value="Major rehab project / structural issues"><label for="cond-5">Major rehab project / structural issues</label></div>
             </div>
           </div>
+          <div class="input-group" style="margin-top:24px" id="mf-issues-wrap">
+            <label class="input-label">Which of these apply? <span style="color:var(--ink-muted);font-weight:400">(optional &#8212; check all that apply)</span></label>
+            <div class="checkbox-grid">
+              <div class="check-pill"><input type="checkbox" id="iss-roof" name="issues" value="Roof needs replacement"><label for="iss-roof">Roof needs replacement</label></div>
+              <div class="check-pill"><input type="checkbox" id="iss-hvac" name="issues" value="HVAC issues"><label for="iss-hvac">HVAC issues</label></div>
+              <div class="check-pill"><input type="checkbox" id="iss-plumb" name="issues" value="Plumbing problems"><label for="iss-plumb">Plumbing problems</label></div>
+              <div class="check-pill"><input type="checkbox" id="iss-elec" name="issues" value="Electrical issues"><label for="iss-elec">Electrical issues</label></div>
+              <div class="check-pill"><input type="checkbox" id="iss-found" name="issues" value="Foundation concerns"><label for="iss-found">Foundation concerns</label></div>
+              <div class="check-pill"><input type="checkbox" id="iss-mold" name="issues" value="Mold or water damage"><label for="iss-mold">Mold or water damage</label></div>
+              <div class="check-pill"><input type="checkbox" id="iss-fire" name="issues" value="Fire damage"><label for="iss-fire">Fire damage</label></div>
+              <div class="check-pill"><input type="checkbox" id="iss-hoard" name="issues" value="Hoarding situation"><label for="iss-hoard">Hoarding situation</label></div>
+              <div class="check-pill"><input type="checkbox" id="iss-van" name="issues" value="Vandalism / squatters"><label for="iss-van">Vandalism / squatters</label></div>
+              <div class="check-pill"><input type="checkbox" id="iss-code" name="issues" value="Code violations"><label for="iss-code">Code violations</label></div>
+              <div class="check-pill"><input type="checkbox" id="iss-none" name="issues" value="None of the above"><label for="iss-none">None of the above</label></div>
+            </div>
+          </div>
+          <div class="input-group" style="margin-top:24px" id="mf-occ-wrap">
+            <label class="input-label" for="mf-occupancy">Who&#8217;s living in the property right now? *</label>
+            <select id="mf-occupancy" name="occupancy" class="input-field" required>
+              <option value="">Select</option>
+              <option>I live there</option>
+              <option>Family member lives there</option>
+              <option>Tenant lives there (paying rent)</option>
+              <option>Tenant lives there (NOT paying rent)</option>
+              <option>Squatter situation</option>
+              <option>Vacant</option>
+              <option>Vacant but furnished</option>
+            </select>
+          </div>
+          <div class="input-group" style="margin-top:16px;display:none" id="mf-lease-wrap">
+            <label class="input-label" for="mf-lease">Is there a lease in place?</label>
+            <select id="mf-lease" name="leaseStatus" class="input-field">
+              <option value="">Select</option>
+              <option>Yes, on a fixed-term lease</option>
+              <option>Yes, but month-to-month</option>
+              <option>No formal lease</option>
+              <option>Not sure</option>
+            </select>
+          </div>
+          <div class="mf-nav">
+            <button type="button" class="btn-ghost mf-back">&#8592; Back</button>
+            <button type="button" class="btn btn-primary mf-next">Continue &#8594;</button>
+          </div>
         </div>
 
-        <div class="fieldset-group">
-          <div class="fieldset-title">How to Reach You</div>
-          <div class="form-row cols-2">
-            <div class="input-group"><label class="input-label" for="full-fname">First Name *</label><input type="text" id="full-fname" name="firstName" class="input-field" required autocomplete="given-name"></div>
-            <div class="input-group"><label class="input-label" for="full-lname">Last Name *</label><input type="text" id="full-lname" name="lastName" class="input-field" required autocomplete="family-name"></div>
+        <!-- STEP 5: Financial Snapshot -->
+        <div class="mf-panel" data-step="5">
+          <h3>Financial snapshot</h3>
+          <div class="trust-signal">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <p>Your information is private and never shared with anyone outside our team.</p>
           </div>
-          <div class="form-row cols-2">
-            <div class="input-group"><label class="input-label" for="full-phone-2">Phone *</label><input type="tel" id="full-phone-2" name="phone" class="input-field" required autocomplete="tel" placeholder="(555) 123-4567"></div>
-            <div class="input-group"><label class="input-label" for="full-email">Email *</label><input type="email" id="full-email" name="email" class="input-field" required autocomplete="email" placeholder="you@email.com"></div>
+          <div class="input-group">
+            <label class="input-label" for="mf-mortgage">Is there a mortgage on the property? *</label>
+            <select id="mf-mortgage" name="mortgageStatus" class="input-field" required>
+              <option value="">Select</option>
+              <option>Yes, one mortgage</option>
+              <option>Yes, two mortgages (or HELOC)</option>
+              <option>No, owned free and clear</option>
+              <option>Not sure</option>
+            </select>
+          </div>
+          <div class="input-group" style="margin-top:16px;display:none" id="mf-balance-wrap">
+            <label class="input-label" for="mf-balance">Roughly how much is owed?</label>
+            <select id="mf-balance" name="mortgageBalance" class="input-field">
+              <option value="">Select range</option>
+              <option>Under $100K</option>
+              <option>$100K &#8211; $200K</option>
+              <option>$200K &#8211; $300K</option>
+              <option>$300K &#8211; $400K</option>
+              <option>$400K &#8211; $500K</option>
+              <option>$500K &#8211; $750K</option>
+              <option>$750K &#8211; $1M</option>
+              <option>Over $1M</option>
+              <option>Not sure</option>
+            </select>
+          </div>
+          <div class="input-group" style="margin-top:16px;display:none" id="mf-payment-wrap">
+            <label class="input-label" for="mf-payment">How are payments going right now?</label>
+            <select id="mf-payment" name="paymentStatus" class="input-field">
+              <option value="">Select</option>
+              <option>Current and on time</option>
+              <option>1 &#8211; 2 months behind</option>
+              <option>3+ months behind</option>
+              <option>In pre-foreclosure / received notice</option>
+              <option>In foreclosure / sale date set</option>
+              <option>Loan modification in progress</option>
+              <option>Not sure</option>
+            </select>
+          </div>
+          <div class="input-group" style="margin-top:16px">
+            <label class="input-label" for="mf-liens">Any other liens, back taxes, or judgments on the property? *</label>
+            <select id="mf-liens" name="liens" class="input-field" required>
+              <option value="">Select</option>
+              <option>No</option>
+              <option>Yes &#8212; back property taxes</option>
+              <option>Yes &#8212; IRS / federal tax liens</option>
+              <option>Yes &#8212; HOA liens</option>
+              <option>Yes &#8212; judgments / lawsuits</option>
+              <option>Yes &#8212; multiple liens</option>
+              <option>Not sure</option>
+            </select>
+          </div>
+          <div class="input-group" style="margin-top:16px">
+            <label class="input-label" for="mf-value">Roughly what do you think it&#8217;s worth today? <span style="color:var(--ink-muted);font-weight:400">(optional &#8212; no wrong answers)</span></label>
+            <select id="mf-value" name="estimatedValue" class="input-field">
+              <option value="">Select range</option>
+              <option>Under $150K</option>
+              <option>$150K &#8211; $250K</option>
+              <option>$250K &#8211; $350K</option>
+              <option>$350K &#8211; $500K</option>
+              <option>$500K &#8211; $750K</option>
+              <option>$750K &#8211; $1M</option>
+              <option>Over $1M</option>
+              <option>Not sure</option>
+            </select>
+          </div>
+          <div class="mf-nav">
+            <button type="button" class="btn-ghost mf-back">&#8592; Back</button>
+            <button type="button" class="btn btn-primary mf-next">Continue &#8594;</button>
           </div>
         </div>
 
-        <button type="submit" class="btn btn-primary btn-lg btn-block" style="margin-top:12px;">Get My Free Cash Offer →</button>
-        <p class="form-disclaimer">By submitting, you consent to be contacted by Silver Lynx Homes about your property via phone, text, or email. Your information is never sold or shared. Standard rates apply.</p>
+        <!-- STEP 6: Goals & Decision Authority -->
+        <div class="mf-panel" data-step="6">
+          <h3>Your goals</h3>
+          <p class="form-card-sub">Almost done &#8212; just a couple more questions.</p>
+          <div class="input-group">
+            <label class="input-label" for="mf-price">Do you have a number in mind that would make this work? <span style="color:var(--ink-muted);font-weight:400">(optional)</span></label>
+            <input type="text" id="mf-price" name="priceExpectation" class="input-field" placeholder="e.g. $250,000" autocomplete="off">
+          </div>
+          <div class="input-group" style="margin-top:16px">
+            <label class="input-label" for="mf-creative">Are you open to creative options if a straight cash sale doesn&#8217;t make sense? *</label>
+            <select id="mf-creative" name="creativeOpenness" class="input-field" required>
+              <option value="">Select</option>
+              <option>Yes, open to anything that helps</option>
+              <option>Maybe, depends on the situation</option>
+              <option>Just want a cash offer</option>
+              <option>Not sure what that means</option>
+            </select>
+          </div>
+          <div class="input-group" style="margin-top:16px">
+            <label class="input-label" for="mf-ownership">Is anyone else on the title with you? *</label>
+            <select id="mf-ownership" name="ownership" class="input-field" required>
+              <option value="">Select</option>
+              <option value="I&#8217;m the sole owner">I&#8217;m the sole owner</option>
+              <option>Spouse is also on title</option>
+              <option>Family member(s) on title</option>
+              <option>Inherited &#8212; multiple heirs</option>
+              <option>Not sure</option>
+            </select>
+          </div>
+          <div class="input-group" style="margin-top:16px;display:none" id="mf-decision-wrap">
+            <label class="input-label" for="mf-decision">Are all owners ready to sell?</label>
+            <select id="mf-decision" name="decisionAlignment" class="input-field">
+              <option value="">Select</option>
+              <option>Yes, everyone is on the same page</option>
+              <option>Mostly &#8212; minor disagreements</option>
+              <option>No, still working through it</option>
+              <option>I&#8217;m the only decision-maker</option>
+            </select>
+          </div>
+          <div class="mf-nav">
+            <button type="button" class="btn-ghost mf-back">&#8592; Back</button>
+            <button type="button" class="btn btn-primary mf-next">Continue &#8594;</button>
+          </div>
+        </div>
+
+        <!-- STEP 7: Contact Preferences -->
+        <div class="mf-panel" data-step="7">
+          <h3>Last step &#8212; how to reach you</h3>
+          <p class="form-card-sub">We&#8217;ll make sure our call lands at a time you&#8217;ll actually answer.</p>
+          <div class="input-group">
+            <label class="input-label" for="mf-calltime">When&#8217;s the best time to reach you? *</label>
+            <select id="mf-calltime" name="bestTimeToCall" class="input-field" required>
+              <option value="">Select</option>
+              <option>Morning (8 AM &#8211; 12 PM)</option>
+              <option>Afternoon (12 PM &#8211; 5 PM)</option>
+              <option>Evening (5 PM &#8211; 8 PM)</option>
+              <option>Anytime</option>
+            </select>
+          </div>
+          <div class="input-group" style="margin-top:16px">
+            <label class="input-label" for="mf-channel">What&#8217;s the best way to reach you? *</label>
+            <select id="mf-channel" name="preferredChannel" class="input-field" required>
+              <option value="">Select</option>
+              <option>Phone call</option>
+              <option>Text message</option>
+              <option>Email</option>
+              <option>Video call (Zoom, FaceTime, etc.)</option>
+            </select>
+          </div>
+          <div class="input-group" style="margin-top:16px">
+            <label class="input-label" for="mf-notes">Anything else we should know before we call? <span style="color:var(--ink-muted);font-weight:400">(optional)</span></label>
+            <textarea id="mf-notes" name="notes" class="input-field" rows="3" maxlength="300" placeholder="Any details that would help us prepare&#8230;" style="resize:vertical"></textarea>
+            <div class="char-count"><span id="mf-notes-ct">0</span> / 300</div>
+          </div>
+          <div class="mf-nav">
+            <button type="button" class="btn-ghost mf-back">&#8592; Back</button>
+            <button type="submit" class="btn btn-primary btn-lg">Get My Free Cash Offer &#8594;</button>
+          </div>
+        </div>
+
+        <p class="form-disclaimer" style="margin-top:20px">By submitting, you consent to be contacted by Silver Lynx Homes about your property via phone, text, or email. Your information is never sold or shared. Standard rates apply.</p>
       </form>
     </div>
   </div>
@@ -751,28 +1067,198 @@ document.getElementById('quick-form').addEventListener('submit', function(e) {
   setTimeout(() => document.getElementById('full-address').focus({ preventScroll: true }), 700);
 });
 
-document.getElementById('full-offer-form').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const btn = this.querySelector('button[type="submit"]');
-  const origHTML = btn.innerHTML;
-  btn.textContent = 'Sending…';
-  btn.disabled = true;
-  const data = Object.fromEntries(new FormData(this).entries());
-  try {
-    const res = await fetch('/api/submit-lead', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new Error('server');
-    this.innerHTML = '<div style="text-align:center;padding:48px 20px;"><div style="width:72px;height:72px;margin:0 auto 24px;border-radius:50%;background:linear-gradient(135deg,rgba(16,185,129,0.18),rgba(16,185,129,0.08));color:var(--success);display:flex;align-items:center;justify-content:center;border:1px solid rgba(16,185,129,0.3);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" width="32" height="32"><polyline points="20 6 9 17 4 12"/></svg></div><h3 style="margin-bottom:14px;font-size:1.55rem;">Got it. We&#39;re on it.</h3><p style="color:var(--ink-soft);font-size:1rem;line-height:1.65;max-width:38ch;margin:0 auto;">Our acquisitions team will review your property and reach out within 24 hours with your cash offer.</p></div>';
-  } catch {
-    btn.innerHTML = origHTML;
-    btn.disabled = false;
-    btn.style.background = 'linear-gradient(135deg,var(--danger),#c53030)';
-    btn.textContent = 'Something went wrong — please try again';
+// Multi-step form logic
+(function() {
+  const form = document.getElementById('full-offer-form');
+  if (!form) return;
+  const panels = form.querySelectorAll('.mf-panel');
+  const barFill = document.getElementById('mf-bar-fill');
+  const curEl = document.getElementById('mf-cur');
+  const stepNameEl = document.getElementById('mf-step-name');
+  const STEP_NAMES = ['','Property Hook','Property Snapshot','Your Situation','Property Condition','Financial Snapshot','Goals & Authority','Contact Preferences'];
+  const TOTAL = 7;
+  let currentStep = 1;
+  const LS_KEY = 'slh_form_v1';
+
+  function showStep(n) {
+    panels.forEach(p => p.classList.remove('active'));
+    form.querySelector('.mf-panel[data-step="' + n + '"]').classList.add('active');
+    curEl.textContent = n;
+    stepNameEl.textContent = STEP_NAMES[n] || '';
+    barFill.style.width = (n / TOTAL * 100) + '%';
+    currentStep = n;
+    saveState();
+    document.getElementById('offer-form').scrollIntoView({behavior:'smooth', block:'start'});
   }
-});
+
+  function isVisible(el) {
+    let node = el;
+    while (node && node !== form) {
+      if (node.style && node.style.display === 'none') return false;
+      node = node.parentElement;
+    }
+    return true;
+  }
+
+  function validateStep(n) {
+    const panel = form.querySelector('.mf-panel[data-step="' + n + '"]');
+    let valid = true;
+    panel.querySelectorAll('[required]').forEach(el => {
+      if (!isVisible(el)) return;
+      if (!el.value.trim()) { el.classList.add('input-error'); valid = false; }
+      else el.classList.remove('input-error');
+    });
+    if (n === 4) {
+      const condWrap = document.getElementById('mf-cond-wrap');
+      if (condWrap && isVisible(condWrap)) {
+        const checked = panel.querySelector('input[name="condition"]:checked');
+        const radioRow = document.getElementById('mf-cond-radio');
+        if (!checked) { radioRow && radioRow.classList.add('radio-error'); valid = false; }
+        else { radioRow && radioRow.classList.remove('radio-error'); }
+      }
+    }
+    return valid;
+  }
+
+  function capturePartialLead() {
+    const d = {};
+    new FormData(form).forEach((v, k) => { if (v) d[k] = v; });
+    if (d.phone) {
+      fetch('/api/submit-lead', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({...d,_partial:true}) }).catch(()=>{});
+    }
+  }
+
+  form.querySelectorAll('.mf-next').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!validateStep(currentStep)) return;
+      if (currentStep === 1) capturePartialLead();
+      if (currentStep < TOTAL) showStep(currentStep + 1);
+    });
+  });
+
+  form.querySelectorAll('.mf-back').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (currentStep > 1) showStep(currentStep - 1);
+    });
+  });
+
+  // Conditional: beds/baths + condition/occupancy hidden for vacant land
+  const typeEl = document.getElementById('mf-type');
+  typeEl && typeEl.addEventListener('change', function() {
+    const land = this.value === 'Vacant land';
+    ['mf-beds-baths','mf-cond-wrap','mf-issues-wrap','mf-occ-wrap'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = land ? 'none' : '';
+    });
+    const beds = document.getElementById('mf-beds');
+    const baths = document.getElementById('mf-baths');
+    const occ = document.getElementById('mf-occupancy');
+    if (beds) beds.required = !land;
+    if (baths) baths.required = !land;
+    if (occ) occ.required = !land;
+    if (land) { const lw = document.getElementById('mf-lease-wrap'); if(lw) lw.style.display='none'; }
+  });
+
+  // Conditional: lease status shown if tenant
+  const occEl = document.getElementById('mf-occupancy');
+  occEl && occEl.addEventListener('change', function() {
+    const lw = document.getElementById('mf-lease-wrap');
+    if (lw) lw.style.display = this.value.includes('Tenant') ? '' : 'none';
+  });
+
+  // Conditional: mortgage balance/payment shown if has mortgage
+  const mortEl = document.getElementById('mf-mortgage');
+  mortEl && mortEl.addEventListener('change', function() {
+    const has = this.value !== 'No, owned free and clear' && this.value !== '';
+    ['mf-balance-wrap','mf-payment-wrap'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = has ? '' : 'none';
+    });
+  });
+
+  // Conditional: decision alignment shown if not sole owner
+  const ownEl = document.getElementById('mf-ownership');
+  ownEl && ownEl.addEventListener('change', function() {
+    const dw = document.getElementById('mf-decision-wrap');
+    if (dw) dw.style.display = (this.value === "I’m the sole owner" || this.value === '') ? 'none' : '';
+  });
+
+  // Character counters
+  const chalEl = document.getElementById('mf-challenge');
+  chalEl && chalEl.addEventListener('input', function() {
+    const ct = document.getElementById('mf-challenge-ct');
+    if (ct) ct.textContent = this.value.length;
+  });
+  const notesEl = document.getElementById('mf-notes');
+  notesEl && notesEl.addEventListener('input', function() {
+    const ct = document.getElementById('mf-notes-ct');
+    if (ct) ct.textContent = this.value.length;
+  });
+
+  // Clear input-error on change
+  form.addEventListener('change', e => {
+    if (e.target.classList.contains('input-field')) e.target.classList.remove('input-error');
+  });
+  form.addEventListener('input', e => {
+    if (e.target.classList.contains('input-field')) e.target.classList.remove('input-error');
+  });
+
+  // localStorage auto-save
+  function saveState() {
+    try {
+      const d = {};
+      new FormData(form).forEach((v,k) => { d[k] = v; });
+      localStorage.setItem(LS_KEY, JSON.stringify({step:currentStep, data:d, ts:Date.now()}));
+    } catch(e) {}
+  }
+  function restoreState() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
+      if (!saved) return;
+      if (Date.now() - (saved.ts || 0) > 14 * 864e5) { localStorage.removeItem(LS_KEY); return; }
+      const d = saved.data || {};
+      Object.keys(d).forEach(k => {
+        const el = form.querySelector('[name="' + k + '"]:not([type="checkbox"]):not([type="radio"])');
+        if (el) el.value = d[k] || '';
+      });
+      if (saved.step > 1) showStep(saved.step);
+    } catch(e) {}
+  }
+  restoreState();
+  form.addEventListener('change', saveState);
+
+  // Form submit
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    if (!validateStep(currentStep)) return;
+    const btn = this.querySelector('button[type="submit"]');
+    const origHTML = btn.innerHTML;
+    btn.textContent = 'Sending…';
+    btn.disabled = true;
+    const data = {};
+    new FormData(this).forEach((v, k) => { if (k !== 'issues') data[k] = v; });
+    const issues = [...this.querySelectorAll('input[name="issues"]:checked')].map(c => c.value);
+    if (issues.length) data.issues = issues.join(', ');
+    const nameParts = (data.name || '').trim().split(/\s+/);
+    data.firstName = nameParts[0] || '';
+    data.lastName = nameParts.slice(1).join(' ') || '';
+    try {
+      const res = await fetch('/api/submit-lead', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('server');
+      localStorage.removeItem(LS_KEY);
+      this.innerHTML = '<div style="text-align:center;padding:48px 20px;"><div style="width:72px;height:72px;margin:0 auto 24px;border-radius:50%;background:linear-gradient(135deg,rgba(16,185,129,0.18),rgba(16,185,129,0.08));color:var(--success);display:flex;align-items:center;justify-content:center;border:1px solid rgba(16,185,129,0.3);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" width="32" height="32"><polyline points="20 6 9 17 4 12"/></svg></div><h3 style="margin-bottom:14px;font-size:1.55rem;">Got it. We&#39;re on it.</h3><p style="color:var(--ink-soft);font-size:1rem;line-height:1.65;max-width:38ch;margin:0 auto;">Our acquisitions team will review your property and reach out within 24 hours with your cash offer.</p></div>';
+    } catch {
+      btn.innerHTML = origHTML;
+      btn.disabled = false;
+      btn.style.background = 'linear-gradient(135deg,var(--danger),#c53030)';
+      btn.textContent = 'Something went wrong — please try again';
+    }
+  });
+})();
 
 const menuToggle = document.getElementById('menuToggle');
 const menuClose = document.getElementById('menuClose');
