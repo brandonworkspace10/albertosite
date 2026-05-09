@@ -314,13 +314,6 @@ select.input-field{appearance:none;-webkit-appearance:none;background-image:url(
 /* Service Area Map Section */
 .service-areas{background:var(--white);position:relative}
 .service-areas::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--silver-300),transparent)}
-.svc-map-wrap{max-width:680px;margin:48px auto 0}
-.svc-map-wrap svg{width:100%;height:auto;display:block}
-.map-ctx{fill:#EAEDF1;stroke:#D5DAE2;stroke-width:0.7}
-.map-active{fill:var(--blue-500);stroke:var(--blue-600);stroke-width:1;transition:fill .25s;cursor:default}
-.map-active:hover{fill:var(--blue-400)}
-.map-lbl{font-family:'Sora',sans-serif;font-size:13px;font-weight:700;fill:#fff;text-anchor:middle;letter-spacing:.04em;pointer-events:none}
-.map-lbl-sm{font-size:9px;font-family:'Sora',sans-serif;font-weight:600;fill:rgba(255,255,255,.8);text-anchor:middle;letter-spacing:.04em;pointer-events:none}
 .svc-state-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-top:40px}
 .svc-state-card{background:var(--silver-50);border:1.5px solid var(--silver-100);border-radius:var(--radius-lg);padding:22px 24px;transition:border-color var(--t),box-shadow var(--t)}
 .svc-state-card:hover{border-color:var(--blue-300);box-shadow:var(--shadow-sm)}
@@ -329,7 +322,6 @@ select.input-field{appearance:none;-webkit-appearance:none;background-image:url(
 .svc-state-name{font-family:'Sora',sans-serif;font-size:1.05rem;font-weight:700;color:var(--ink)}
 .svc-cities{display:flex;flex-wrap:wrap;gap:6px}
 .svc-city{font-size:.78rem;color:var(--ink-soft);padding:3px 10px;background:var(--white);border:1px solid var(--silver-200);border-radius:999px}
-@media(max-width:580px){.svc-map-wrap{display:none}}
 </style>
 </head>
 <body>
@@ -1023,64 +1015,6 @@ select.input-field{appearance:none;-webkit-appearance:none;background-image:url(
       <div class="eyebrow">Service Area</div>
       <h2>We Buy Houses in <span class="serif silver-text">4 States</span></h2>
       <p class="section-sub center">Silver Lynx Homes specializes in cash home buying across Ohio, New York, New Jersey, and Florida. If your property is in one of these states, we can make you a cash offer — fast.</p>
-    </div>
-
-    <div class="svc-map-wrap" aria-hidden="true">
-      <svg viewBox="0 0 700 520" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Map highlighting Silver Lynx Homes service states: Ohio, New York, New Jersey, and Florida">
-        <defs>
-          <pattern id="mapDots" width="18" height="18" patternUnits="userSpaceOnUse">
-            <circle cx="9" cy="9" r="0.7" fill="#D5DAE2" opacity="0.5"/>
-          </pattern>
-          <filter id="stateGlow" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
-            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-        </defs>
-
-        <!-- Dot-grid background -->
-        <rect width="700" height="520" fill="url(#mapDots)"/>
-
-        <!-- Context states (grey) — rendered first so highlighted states sit on top -->
-        <!-- Michigan lower peninsula -->
-        <path class="map-ctx" d="M 165,22 L 248,28 L 244,88 L 228,118 L 190,118 L 162,68 Z"/>
-        <!-- Indiana -->
-        <path class="map-ctx" d="M 103,118 L 190,118 L 190,208 L 103,208 Z"/>
-        <!-- Kentucky -->
-        <path class="map-ctx" d="M 65,196 L 260,196 L 262,234 L 65,234 Z"/>
-        <!-- Tennessee -->
-        <path class="map-ctx" d="M 47,234 L 268,234 L 268,272 L 47,272 Z"/>
-        <!-- Pennsylvania -->
-        <path class="map-ctx" d="M 298,107 L 450,112 L 452,165 L 298,165 Z"/>
-        <!-- West Virginia + Virginia (merged) -->
-        <path class="map-ctx" d="M 260,165 L 450,165 L 452,236 L 260,236 Z"/>
-        <!-- North Carolina -->
-        <path class="map-ctx" d="M 202,236 L 430,236 L 430,298 L 202,298 Z"/>
-        <!-- South Carolina -->
-        <path class="map-ctx" d="M 228,270 L 350,270 L 350,338 L 228,338 Z"/>
-        <!-- Georgia -->
-        <path class="map-ctx" d="M 168,272 L 290,272 L 290,376 L 168,376 Z"/>
-        <!-- Alabama -->
-        <path class="map-ctx" d="M 94,272 L 168,272 L 168,378 L 94,378 Z"/>
-        <!-- Mississippi -->
-        <path class="map-ctx" d="M 10,272 L 94,272 L 94,380 L 10,380 Z"/>
-
-        <!-- === Highlighted target states === -->
-        <!-- Ohio -->
-        <path class="map-active" id="map-oh" filter="url(#stateGlow)" d="M 190,112 L 252,104 L 300,107 L 302,192 L 248,198 L 190,194 Z"/>
-        <text class="map-lbl" x="246" y="153">OHIO</text>
-
-        <!-- New York -->
-        <path class="map-active" id="map-ny" filter="url(#stateGlow)" d="M 320,94 L 488,44 L 526,138 L 467,148 L 320,112 Z"/>
-        <text class="map-lbl" x="418" y="100">NEW YORK</text>
-
-        <!-- New Jersey -->
-        <path class="map-active" id="map-nj" filter="url(#stateGlow)" d="M 428,127 L 468,127 L 470,140 L 463,158 L 454,172 L 445,183 L 433,178 L 428,148 Z"/>
-        <text class="map-lbl-sm" x="449" y="156">NJ</text>
-
-        <!-- Florida -->
-        <path class="map-active" id="map-fl" filter="url(#stateGlow)" d="M 120,362 L 308,362 L 312,392 L 298,428 L 278,466 L 261,499 L 244,487 L 229,463 L 218,428 L 213,392 L 120,372 Z"/>
-        <text class="map-lbl" x="218" y="430">FLORIDA</text>
-      </svg>
     </div>
 
     <!-- State cards -->
