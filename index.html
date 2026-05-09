@@ -84,6 +84,7 @@ section{padding:clamp(72px,10vw,132px) 0;position:relative}
 .btn-lg{padding:18px 34px;font-size:1rem}.btn-block{width:100%}
 .hero{background:var(--navy-900);color:var(--white);padding:clamp(64px,9vw,110px) 0 clamp(80px,10vw,120px);position:relative;overflow:hidden;isolation:isolate}
 .hero-bg-mark{display:none}
+section{scroll-margin-top:88px}
 .hero-bg-mark img{width:100%;height:auto}
 .hero-bg-glow{position:absolute;top:-20%;right:-10%;width:60%;height:80%;background:radial-gradient(ellipse at center,rgba(37,99,235,.28) 0%,transparent 60%);z-index:0;filter:blur(48px);pointer-events:none}
 .hero-bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(149,164,195,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(149,164,195,.04) 1px,transparent 1px);background-size:72px 72px;mask-image:radial-gradient(ellipse 70% 60% at 50% 35%,black 35%,transparent 80%);-webkit-mask-image:radial-gradient(ellipse 70% 60% at 50% 35%,black 35%,transparent 80%);z-index:0;pointer-events:none}
@@ -190,8 +191,8 @@ select.input-field{appearance:none;-webkit-appearance:none;background-image:url(
 .testimonial-loc{color:var(--ink-muted);font-size:.82rem}
 .promise-strip{background:var(--navy-900);padding:0;position:relative;overflow:hidden;color:var(--white)}
 .promise-strip-inner{display:flex;align-items:center;white-space:nowrap;padding:22px 0;border-top:1px solid rgba(213,218,226,.1);border-bottom:1px solid rgba(213,218,226,.1);font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:clamp(1.5rem,3vw,2rem);letter-spacing:-.01em;color:var(--silver-200)}
-.promise-track{display:inline-flex;align-items:center;gap:56px;animation:scrollX 32s linear infinite}
-.promise-track > span{display:inline-flex;align-items:center;gap:56px}
+.promise-track{display:inline-flex;align-items:center;gap:0;animation:scrollX 32s linear infinite}
+.promise-track > span{display:inline-flex;align-items:center;gap:56px;padding-right:56px}
 .promise-dot{width:8px;height:8px;background:var(--silver-gradient);border-radius:50%;flex-shrink:0}
 @keyframes scrollX{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 .offer-section{background:linear-gradient(180deg,var(--bg-cream) 0%,var(--white) 100%);position:relative}
@@ -300,6 +301,7 @@ select.input-field{appearance:none;-webkit-appearance:none;background-image:url(
 .check-pill input:checked+label::before{background:var(--blue-500);border-color:var(--blue-500)}
 .char-count{font-size:.75rem;color:var(--ink-muted);text-align:right;margin-top:4px}
 .input-error{border-color:#ef4444!important;box-shadow:0 0 0 3px rgba(239,68,68,.1)!important}
+.btn:disabled{opacity:.65;cursor:not-allowed;pointer-events:none}
 .radio-error .radio-pill label{border-color:#ef4444}
 .mf-panel .radio-row{flex-direction:column;gap:8px}
 .mf-panel .radio-row .radio-pill{min-width:unset;flex:unset}
@@ -657,7 +659,7 @@ select.input-field{appearance:none;-webkit-appearance:none;background-image:url(
               </select>
             </div>
           </div>
-          <div class="input-group" style="margin-top:16px">
+          <div class="input-group" id="mf-sqft-wrap" style="margin-top:16px">
             <label class="input-label" for="mf-sqft">Approximate Square Footage *</label>
             <select id="mf-sqft" name="sqft" class="input-field" required>
               <option value="">Select range</option>
@@ -889,7 +891,7 @@ select.input-field{appearance:none;-webkit-appearance:none;background-image:url(
             <label class="input-label" for="mf-ownership">Is anyone else on the title with you? *</label>
             <select id="mf-ownership" name="ownership" class="input-field" required>
               <option value="">Select</option>
-              <option value="I&#8217;m the sole owner">I&#8217;m the sole owner</option>
+              <option value="I'm the sole owner">I&#8217;m the sole owner</option>
               <option>Spouse is also on title</option>
               <option>Family member(s) on title</option>
               <option>Inherited &#8212; multiple heirs</option>
@@ -1029,7 +1031,7 @@ select.input-field{appearance:none;-webkit-appearance:none;background-image:url(
       </div>
       <div class="footer-col">
         <h4>Resources</h4>
-        <ul><li><a href="#offer-form">Get a Cash Offer</a></li><li><a href="#">Seller's Guide</a></li><li><a href="#">Foreclosure Help</a></li><li><a href="#">Probate Resources</a></li></ul>
+        <ul><li><a href="#offer-form">Get a Cash Offer</a></li><li><a href="#offer-form">Seller&#8217;s Guide</a></li><li><a href="#offer-form">Foreclosure Help</a></li><li><a href="#offer-form">Probate Resources</a></li></ul>
       </div>
       <div class="footer-col">
         <h4>Get in Touch</h4>
@@ -1061,6 +1063,13 @@ document.getElementById('quick-form').addEventListener('submit', function(e) {
   e.preventDefault();
   const address = document.getElementById('quick-address').value.trim();
   const phone = document.getElementById('quick-phone').value.trim();
+  if (!address && !phone) {
+    ['quick-address','quick-phone'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && !el.value.trim()) el.classList.add('input-error');
+    });
+    return;
+  }
   if (address) document.getElementById('full-address').value = address;
   if (phone) document.getElementById('full-phone-2').value = phone;
   document.getElementById('offer-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1123,7 +1132,7 @@ document.getElementById('quick-form').addEventListener('submit', function(e) {
   function capturePartialLead() {
     const d = {};
     new FormData(form).forEach((v, k) => { if (v) d[k] = v; });
-    if (d.phone) {
+    if (d.phone || d.address) {
       fetch('/api/submit-lead', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({...d,_partial:true}) }).catch(()=>{});
     }
   }
@@ -1146,17 +1155,19 @@ document.getElementById('quick-form').addEventListener('submit', function(e) {
   const typeEl = document.getElementById('mf-type');
   typeEl && typeEl.addEventListener('change', function() {
     const land = this.value === 'Vacant land';
-    ['mf-beds-baths','mf-cond-wrap','mf-issues-wrap','mf-occ-wrap'].forEach(id => {
+    ['mf-beds-baths','mf-sqft-wrap','mf-cond-wrap','mf-issues-wrap','mf-occ-wrap'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = land ? 'none' : '';
     });
     const beds = document.getElementById('mf-beds');
     const baths = document.getElementById('mf-baths');
+    const sqft = document.getElementById('mf-sqft');
     const occ = document.getElementById('mf-occupancy');
     if (beds) beds.required = !land;
     if (baths) baths.required = !land;
+    if (sqft) sqft.required = !land;
     if (occ) occ.required = !land;
-    if (land) { const lw = document.getElementById('mf-lease-wrap'); if(lw) lw.style.display='none'; }
+    if (land) { const lw = document.getElementById('mf-lease-wrap'); if(lw) lw.style.display='none'; const cr = document.getElementById('mf-cond-radio'); if(cr) cr.classList.remove('radio-error'); }
   });
 
   // Conditional: lease status shown if tenant
@@ -1208,6 +1219,7 @@ document.getElementById('quick-form').addEventListener('submit', function(e) {
     try {
       const d = {};
       new FormData(form).forEach((v,k) => { d[k] = v; });
+      d._issues = [...form.querySelectorAll('input[name="issues"]:checked')].map(c => c.value);
       localStorage.setItem(LS_KEY, JSON.stringify({step:currentStep, data:d, ts:Date.now()}));
     } catch(e) {}
   }
@@ -1218,8 +1230,17 @@ document.getElementById('quick-form').addEventListener('submit', function(e) {
       if (Date.now() - (saved.ts || 0) > 14 * 864e5) { localStorage.removeItem(LS_KEY); return; }
       const d = saved.data || {};
       Object.keys(d).forEach(k => {
-        const el = form.querySelector('[name="' + k + '"]:not([type="checkbox"]):not([type="radio"])');
-        if (el) el.value = d[k] || '';
+        if (k.startsWith('_')) return;
+        const inputs = form.querySelectorAll('[name="' + k + '"]');
+        inputs.forEach(el => {
+          if (el.type === 'radio') { if (el.value === d[k]) el.checked = true; }
+          else if (el.type !== 'checkbox') el.value = d[k] || '';
+        });
+      });
+      const savedIssues = d._issues || [];
+      savedIssues.forEach(val => {
+        const cb = form.querySelector('input[name="issues"][value="' + val + '"]');
+        if (cb) cb.checked = true;
       });
       if (saved.step > 1) showStep(saved.step);
     } catch(e) {}
@@ -1227,12 +1248,21 @@ document.getElementById('quick-form').addEventListener('submit', function(e) {
   restoreState();
   form.addEventListener('change', saveState);
 
+  function validateAll() {
+    let valid = true;
+    for (let i = 1; i <= TOTAL; i++) {
+      if (!validateStep(i)) { if (i !== currentStep) showStep(i); valid = false; break; }
+    }
+    return valid;
+  }
+
   // Form submit
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const origBtnHTML = submitBtn ? submitBtn.innerHTML : '';
   form.addEventListener('submit', async function(e) {
     e.preventDefault();
-    if (!validateStep(currentStep)) return;
+    if (!validateAll()) return;
     const btn = this.querySelector('button[type="submit"]');
-    const origHTML = btn.innerHTML;
     btn.textContent = 'Sending…';
     btn.disabled = true;
     const data = {};
@@ -1252,7 +1282,7 @@ document.getElementById('quick-form').addEventListener('submit', function(e) {
       localStorage.removeItem(LS_KEY);
       this.innerHTML = '<div style="text-align:center;padding:48px 20px;"><div style="width:72px;height:72px;margin:0 auto 24px;border-radius:50%;background:linear-gradient(135deg,rgba(16,185,129,0.18),rgba(16,185,129,0.08));color:var(--success);display:flex;align-items:center;justify-content:center;border:1px solid rgba(16,185,129,0.3);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" width="32" height="32"><polyline points="20 6 9 17 4 12"/></svg></div><h3 style="margin-bottom:14px;font-size:1.55rem;">Got it. We&#39;re on it.</h3><p style="color:var(--ink-soft);font-size:1rem;line-height:1.65;max-width:38ch;margin:0 auto;">Our acquisitions team will review your property and reach out within 24 hours with your cash offer.</p></div>';
     } catch {
-      btn.innerHTML = origHTML;
+      btn.innerHTML = origBtnHTML;
       btn.disabled = false;
       btn.style.background = 'linear-gradient(135deg,var(--danger),#c53030)';
       btn.textContent = 'Something went wrong — please try again';
@@ -1276,6 +1306,7 @@ menuClose && menuClose.addEventListener('click', () => {
 drawer && drawer.querySelectorAll('a').forEach(a => {
   a.addEventListener('click', () => {
     drawer.classList.remove('open');
+    menuToggle && menuToggle.setAttribute('aria-expanded', 'false');
     document.body.style.overflow = '';
   });
 });
@@ -1288,7 +1319,7 @@ const observer = new IntersectionObserver((entries) => {
     }
   });
 }, { threshold: 0.12, rootMargin: '0px 0px -50px 0px' });
-document.querySelectorAll('section > .container > *').forEach(el => {
+document.querySelectorAll('section:not(.hero) > .container > *').forEach(el => {
   el.classList.add('scroll-reveal');
   observer.observe(el);
 });
