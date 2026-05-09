@@ -14,9 +14,13 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ ok: true });
   }
 
-  const name = d.name || [d.firstName, d.lastName].filter(Boolean).join(' ');
-  const address = [d.address, d.city, d.state, d.zip].filter(Boolean).join(', ');
-  const subject = `New Lead: ${address || 'Unknown Property'}${name ? ` — ${name}` : ''}`;
+  const name        = d.name || [d.firstName, d.lastName].filter(Boolean).join(' ');
+  const address     = [d.address, d.city, d.state, d.zip].filter(Boolean).join(', ');
+  const subject     = `New Lead: ${address || 'Unknown Property'}${name ? ` — ${name}` : ''}`;
+  const validEmail  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const sellerEmail = d.email && validEmail.test(d.email.trim()) ? d.email.trim() : null;
+  const fromAddress = process.env.RESEND_FROM_EMAIL || 'Silver Lynx Homes <offers@silverlynxhomes.com>';
+  const toAddress   = process.env.LEAD_EMAIL || 'offers@silverlynxhomes.com';
 
   const rows = [
     ['Property',          address],
@@ -161,11 +165,6 @@ module.exports = async function handler(req, res) {
   </table>
 </body>
 </html>`;
-
-  const fromAddress = process.env.RESEND_FROM_EMAIL || 'Silver Lynx Homes <offers@silverlynxhomes.com>';
-  const toAddress   = process.env.LEAD_EMAIL || 'offers@silverlynxhomes.com';
-  const validEmail  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const sellerEmail = d.email && validEmail.test(d.email.trim()) ? d.email.trim() : null;
 
   async function sendEmail(payload) {
     const r = await fetch('https://api.resend.com/emails', {
