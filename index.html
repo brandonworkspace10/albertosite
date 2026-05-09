@@ -1348,7 +1348,7 @@ document.getElementById('quick-form').addEventListener('submit', function(e) {
       if (saved.step > 1) showStep(saved.step, true);
     } catch(e) {}
   }
-  restoreState();
+  localStorage.removeItem(LS_KEY);
   form.addEventListener('change', saveState);
 
   function validateAll() {
