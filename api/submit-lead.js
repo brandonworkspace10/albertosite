@@ -55,7 +55,8 @@ module.exports = async function handler(req, res) {
       </tr>`)
     .join('');
 
-  const html = `<!DOCTYPE html>
+  // ── Internal notification email (to team) ──────────────────────────────────
+  const internalHtml = `<!DOCTYPE html>
 <html>
 <body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f4f5f7;padding:32px 0;margin:0">
   <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.08)">
@@ -76,26 +77,139 @@ module.exports = async function handler(req, res) {
 </body>
 </html>`;
 
-  try {
-    const resp = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: process.env.RESEND_FROM_EMAIL || 'Silver Lynx Leads <onboarding@resend.dev>',
-        to: [process.env.LEAD_EMAIL || 'offers@silverlynxhomes.com'],
-        reply_to: d.email || undefined,
-        subject,
-        html,
-      }),
-    });
+  // ── Seller confirmation email (to lead) ────────────────────────────────────
+  const firstName = d.firstName || (name ? name.split(' ')[0] : null);
+  const greeting = firstName ? `Hi ${firstName},` : 'Hi there,';
+  const propertyLine = address
+    ? `<p style="margin:0 0 24px;color:#2E3949;font-size:15px;line-height:1.7">We've received your request for a cash offer on <strong style="color:#0B1A2E">${address}</strong>. Our team is reviewing the details and will reach out to you shortly — typically within 24 hours.</p>`
+    : `<p style="margin:0 0 24px;color:#2E3949;font-size:15px;line-height:1.7">We've received your request for a cash offer and our team is reviewing your details. You'll hear from us shortly — typically within 24 hours.</p>`;
 
-    if (!resp.ok) {
-      const err = await resp.json().catch(() => ({}));
+  const confirmationHtml = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>We received your request — Silver Lynx Homes</title></head>
+<body style="margin:0;padding:0;background:#F4F5F7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F4F5F7;padding:40px 16px">
+    <tr><td align="center">
+      <table width="100%" style="max-width:580px;border-radius:14px;overflow:hidden;box-shadow:0 8px 32px rgba(11,26,46,.1)">
+
+        <!-- Header -->
+        <tr>
+          <td style="background:#06101F;padding:32px 36px 28px">
+            <p style="margin:0 0 4px;color:#8E96A4;font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:600">Silver Lynx Homes</p>
+            <h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:700;line-height:1.2;letter-spacing:-.02em">Real Estate, Resolved.</h1>
+          </td>
+        </tr>
+
+        <!-- Body -->
+        <tr>
+          <td style="background:#ffffff;padding:36px 36px 28px">
+            <p style="margin:0 0 20px;color:#0B1A2E;font-size:18px;font-weight:700;line-height:1.3">${greeting}</p>
+            <p style="margin:0 0 20px;color:#2E3949;font-size:15px;line-height:1.7">Thank you for reaching out to Silver Lynx Homes. We appreciate you taking the time to share your property details with us.</p>
+            ${propertyLine}
+
+            <!-- What happens next -->
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#F7F8FA;border-radius:10px;border:1px solid #EAEDF1;margin-bottom:28px">
+              <tr>
+                <td style="padding:20px 24px">
+                  <p style="margin:0 0 14px;color:#0B1A2E;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase">What Happens Next</p>
+                  <table cellpadding="0" cellspacing="0">
+                    <tr>
+                      <td style="padding:6px 0;vertical-align:top">
+                        <span style="display:inline-block;width:22px;height:22px;border-radius:50%;background:#2563EB;color:#fff;font-size:11px;font-weight:700;text-align:center;line-height:22px;margin-right:12px;flex-shrink:0">1</span>
+                        <span style="color:#2E3949;font-size:14px;line-height:1.5">A member of our team reviews your property details.</span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding:6px 0;vertical-align:top">
+                        <span style="display:inline-block;width:22px;height:22px;border-radius:50%;background:#2563EB;color:#fff;font-size:11px;font-weight:700;text-align:center;line-height:22px;margin-right:12px;flex-shrink:0">2</span>
+                        <span style="color:#2E3949;font-size:14px;line-height:1.5">We reach out within <strong>24 hours</strong> to introduce ourselves and ask a few quick questions.</span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding:6px 0;vertical-align:top">
+                        <span style="display:inline-block;width:22px;height:22px;border-radius:50%;background:#2563EB;color:#fff;font-size:11px;font-weight:700;text-align:center;line-height:22px;margin-right:12px;flex-shrink:0">3</span>
+                        <span style="color:#2E3949;font-size:14px;line-height:1.5">We present a no-obligation cash offer — no repairs, no fees, no pressure.</span>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+
+            <p style="margin:0 0 8px;color:#2E3949;font-size:15px;line-height:1.7">In the meantime, if you have any questions or want to reach us directly, don't hesitate to get in touch:</p>
+            <p style="margin:0 0 4px;font-size:14px;color:#2E3949"><strong style="color:#0B1A2E">Email:</strong> <a href="mailto:Offers@SilverLynxhomes.com" style="color:#2563EB;text-decoration:none">Offers@SilverLynxhomes.com</a></p>
+          </td>
+        </tr>
+
+        <!-- CTA -->
+        <tr>
+          <td style="background:#ffffff;padding:0 36px 36px;text-align:center">
+            <a href="https://silverlynxhomes.com" style="display:inline-block;background:#2563EB;color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:8px;letter-spacing:-.01em">Visit Our Website</a>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td style="background:#F7F8FA;border-top:1px solid #EAEDF1;padding:20px 36px;text-align:center">
+            <p style="margin:0 0 6px;color:#8E96A4;font-size:12px;line-height:1.6">Silver Lynx Homes &nbsp;·&nbsp; Real Estate, Resolved.</p>
+            <p style="margin:0;color:#B5BDC9;font-size:11px">You received this email because you submitted a cash offer request at silverlynxhomes.com.</p>
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  const fromAddress = process.env.RESEND_FROM_EMAIL || 'Silver Lynx Homes <onboarding@resend.dev>';
+
+  try {
+    // Send both emails in parallel
+    const sends = [
+      // 1) Internal notification to team
+      fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: fromAddress,
+          to: [process.env.LEAD_EMAIL || 'Offers@SilverLynxhomes.com'],
+          reply_to: d.email || undefined,
+          subject,
+          html: internalHtml,
+        }),
+      }),
+    ];
+
+    // 2) Confirmation to the seller (only if they gave us an email)
+    if (d.email) {
+      sends.push(
+        fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from: fromAddress,
+            to: [d.email],
+            reply_to: process.env.LEAD_EMAIL || 'Offers@SilverLynxhomes.com',
+            subject: 'We received your request — Silver Lynx Homes',
+            html: confirmationHtml,
+          }),
+        })
+      );
+    }
+
+    const results = await Promise.all(sends);
+    const failed = results.find(r => !r.ok);
+    if (failed) {
+      const err = await failed.json().catch(() => ({}));
       console.error('Resend error:', err);
-      return res.status(502).json({ error: 'Failed to send notification' });
+      return res.status(502).json({ error: 'Failed to send email' });
     }
 
     return res.status(200).json({ ok: true });
