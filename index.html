@@ -1230,6 +1230,13 @@ document.getElementById('quick-form').addEventListener('submit', function(e) {
       if (!el.value.trim()) { el.classList.add('input-error'); valid = false; }
       else el.classList.remove('input-error');
     });
+    if (n === 7) {
+      const emailEl = document.getElementById('full-email');
+      if (emailEl && emailEl.value.trim()) {
+        const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value.trim());
+        if (!ok) { emailEl.classList.add('input-error'); valid = false; }
+      }
+    }
     if (n === 4) {
       const condWrap = document.getElementById('mf-cond-wrap');
       if (condWrap && isVisible(condWrap)) {

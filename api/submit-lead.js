@@ -45,7 +45,7 @@ module.exports = async function handler(req, res) {
     ['Notes',             d.notes],
     ['Name',              name],
     ['Phone',             d.phone],
-    ['Email',             d.email],
+    ['Email',             sellerEmail],
   ]
     .filter(([, v]) => v)
     .map(([k, v]) => `
@@ -70,7 +70,7 @@ module.exports = async function handler(req, res) {
     <div style="padding:20px 32px 28px;background:#FAFAF7;border-top:1px solid #EAEDF1">
       <p style="color:#6B7484;font-size:12px;margin:0;line-height:1.6">
         Submitted via silverlynxhomes.com
-        ${d.email ? `· <a href="mailto:${d.email}" style="color:#2563EB">Reply to reach lead directly</a>` : ''}
+        ${sellerEmail ? `· <a href="mailto:${sellerEmail}" style="color:#2563EB">Reply to reach lead directly</a>` : ''}
       </p>
     </div>
   </div>
@@ -162,8 +162,10 @@ module.exports = async function handler(req, res) {
 </body>
 </html>`;
 
-  const fromAddress = process.env.RESEND_FROM_EMAIL || 'Silver Lynx Homes <onboarding@resend.dev>';
-  const toAddress  = process.env.LEAD_EMAIL || 'Offers@SilverLynxhomes.com';
+  const fromAddress = process.env.RESEND_FROM_EMAIL || 'Silver Lynx Homes <offers@silverlynxhomes.com>';
+  const toAddress   = process.env.LEAD_EMAIL || 'offers@silverlynxhomes.com';
+  const validEmail  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const sellerEmail = d.email && validEmail.test(d.email.trim()) ? d.email.trim() : null;
 
   async function sendEmail(payload) {
     const r = await fetch('https://api.resend.com/emails', {
@@ -186,16 +188,16 @@ module.exports = async function handler(req, res) {
     const teamOk = await sendEmail({
       from: fromAddress,
       to: [toAddress],
-      reply_to: d.email || undefined,
+      reply_to: sellerEmail || undefined,
       subject,
       html: internalHtml,
     });
 
-    // Send confirmation to seller if they gave an email (best-effort)
-    if (d.email) {
+    // Send confirmation to seller only if they provided a valid email
+    if (sellerEmail) {
       sendEmail({
         from: fromAddress,
-        to: [d.email],
+        to: [sellerEmail],
         reply_to: toAddress,
         subject: 'We received your request — Silver Lynx Homes',
         html: confirmationHtml,
