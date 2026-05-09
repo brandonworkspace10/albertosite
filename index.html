@@ -311,6 +311,13 @@ select.input-field{appearance:none;-webkit-appearance:none;background-image:url(
 .mf-panel .radio-row{flex-direction:column;gap:8px}
 .mf-panel .radio-row .radio-pill{min-width:unset;flex:unset}
 .mf-panel .radio-row .radio-pill label{text-align:left}
+/* Google Places autocomplete dropdown */
+.pac-container{border-radius:10px;box-shadow:0 12px 32px rgba(11,26,46,.12);border:1px solid var(--silver-100);font-family:'Manrope',-apple-system,sans-serif;margin-top:4px;overflow:hidden}
+.pac-item{padding:10px 16px;font-size:14px;color:var(--ink-soft);cursor:pointer;border-top:1px solid var(--silver-50)}
+.pac-item:hover,.pac-item-selected{background:var(--silver-50)}
+.pac-item-query{color:var(--ink);font-weight:600;font-size:14px}
+.pac-matched{color:var(--blue-500)}
+.pac-icon{display:none}
 /* Service Area Map Section */
 .service-areas{background:var(--white);position:relative}
 .service-areas::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--silver-300),transparent)}
@@ -1173,15 +1180,24 @@ document.getElementById('quick-form').addEventListener('submit', function(e) {
     });
     return;
   }
-  // Parse "123 Main St, City, ST 12345" → populate all address fields
-  const addrMatch = address.match(/^(.*?),\s*(.*?),\s*([A-Za-z]{2})\s+(\d{5}(?:-\d{4})?)$/);
-  if (addrMatch) {
-    document.getElementById('full-address').value = addrMatch[1].trim();
-    document.getElementById('full-city').value    = addrMatch[2].trim();
-    document.getElementById('full-state').value   = addrMatch[3].toUpperCase();
-    document.getElementById('full-zip').value     = addrMatch[4].trim();
-  } else if (address) {
-    document.getElementById('full-address').value = address;
+  // Prefer Places-parsed data; fall back to regex parse of typed string
+  const place = window._slhPlace;
+  if (place && place.street) {
+    document.getElementById('full-address').value = place.street;
+    document.getElementById('full-city').value    = place.city  || '';
+    document.getElementById('full-state').value   = place.state || '';
+    document.getElementById('full-zip').value     = place.zip   || '';
+    window._slhPlace = null;
+  } else {
+    const addrMatch = address.match(/^(.*?),\s*(.*?),\s*([A-Za-z]{2})\s+(\d{5}(?:-\d{4})?)$/);
+    if (addrMatch) {
+      document.getElementById('full-address').value = addrMatch[1].trim();
+      document.getElementById('full-city').value    = addrMatch[2].trim();
+      document.getElementById('full-state').value   = addrMatch[3].toUpperCase();
+      document.getElementById('full-zip').value     = addrMatch[4].trim();
+    } else if (address) {
+      document.getElementById('full-address').value = address;
+    }
   }
   if (phone) document.getElementById('full-phone-2').value = phone;
   document.getElementById('offer-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1453,9 +1469,66 @@ document.querySelectorAll('section:not(.hero) > .container > *').forEach(el => {
     this.value = raw ? '$' + Number(raw).toLocaleString('en-US') : '';
   });
   el.addEventListener('keydown', function(e) {
-    // Let backspace clear the $ sign cleanly
     if (e.key === 'Backspace' && this.value === '$') this.value = '';
   });
+})();
+
+// Google Places address autocomplete
+(async function() {
+  try {
+    const { key } = await fetch('/api/maps-key').then(r => r.json());
+    if (!key) return;
+
+    await new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://maps.googleapis.com/maps/api/js?key=' + key + '&libraries=places';
+      s.async = true;
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+
+    function parsePlace(place) {
+      const get = (type, short) => {
+        const c = (place.address_components || []).find(c => c.types.includes(type));
+        return c ? (short ? c.short_name : c.long_name) : '';
+      };
+      return {
+        street: [get('street_number'), get('route')].filter(Boolean).join(' '),
+        city:   get('locality') || get('sublocality_level_1') || get('administrative_area_level_3'),
+        state:  get('administrative_area_level_1', true),
+        zip:    get('postal_code'),
+      };
+    }
+
+    const opts = { types: ['address'], componentRestrictions: { country: 'us' } };
+
+    // Hero quick-form — store parsed result for when full form opens
+    const quickEl = document.getElementById('quick-address');
+    if (quickEl) {
+      const qAc = new google.maps.places.Autocomplete(quickEl, opts);
+      qAc.addListener('place_changed', () => {
+        window._slhPlace = parsePlace(qAc.getPlace());
+      });
+    }
+
+    // Full multi-step form — fill all fields on selection
+    const fullEl = document.getElementById('full-address');
+    if (fullEl) {
+      const fAc = new google.maps.places.Autocomplete(fullEl, opts);
+      fAc.addListener('place_changed', () => {
+        const p = parsePlace(fAc.getPlace());
+        if (p.street) fullEl.value = p.street;
+        const city  = document.getElementById('full-city');
+        const state = document.getElementById('full-state');
+        const zip   = document.getElementById('full-zip');
+        if (city  && p.city)  { city.value  = p.city;  city.classList.remove('input-error'); }
+        if (state && p.state) { state.value = p.state; state.classList.remove('input-error'); }
+        if (zip   && p.zip)   { zip.value   = p.zip;   zip.classList.remove('input-error'); }
+        fullEl.classList.remove('input-error');
+      });
+    }
+  } catch(e) { /* degrade gracefully if Maps fails */ }
 })();
 </script>
 
