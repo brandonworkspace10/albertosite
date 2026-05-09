@@ -163,55 +163,48 @@ module.exports = async function handler(req, res) {
 </html>`;
 
   const fromAddress = process.env.RESEND_FROM_EMAIL || 'Silver Lynx Homes <onboarding@resend.dev>';
+  const toAddress  = process.env.LEAD_EMAIL || 'Offers@SilverLynxhomes.com';
+
+  async function sendEmail(payload) {
+    const r = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!r.ok) {
+      const body = await r.json().catch(() => ({}));
+      console.error('Resend rejected email:', JSON.stringify(body));
+    }
+    return r.ok;
+  }
 
   try {
-    // Send both emails in parallel
-    const sends = [
-      // 1) Internal notification to team
-      fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: fromAddress,
-          to: [process.env.LEAD_EMAIL || 'Offers@SilverLynxhomes.com'],
-          reply_to: d.email || undefined,
-          subject,
-          html: internalHtml,
-        }),
-      }),
-    ];
+    // Always try to notify the team
+    const teamOk = await sendEmail({
+      from: fromAddress,
+      to: [toAddress],
+      reply_to: d.email || undefined,
+      subject,
+      html: internalHtml,
+    });
 
-    // 2) Confirmation to the seller (only if they gave us an email)
+    // Send confirmation to seller if they gave an email (best-effort)
     if (d.email) {
-      sends.push(
-        fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            from: fromAddress,
-            to: [d.email],
-            reply_to: process.env.LEAD_EMAIL || 'Offers@SilverLynxhomes.com',
-            subject: 'We received your request — Silver Lynx Homes',
-            html: confirmationHtml,
-          }),
-        })
-      );
+      sendEmail({
+        from: fromAddress,
+        to: [d.email],
+        reply_to: toAddress,
+        subject: 'We received your request — Silver Lynx Homes',
+        html: confirmationHtml,
+      }).catch(err => console.error('Confirmation email error:', err));
     }
 
-    const results = await Promise.all(sends);
-    const failed = results.find(r => !r.ok);
-    if (failed) {
-      const err = await failed.json().catch(() => ({}));
-      console.error('Resend error:', err);
-      return res.status(502).json({ error: 'Failed to send email' });
-    }
-
+    // Return success regardless of email result — the lead is captured
+    // teamOk=false means we got the data but email failed; log is in sendEmail above
+    if (!teamOk) console.warn('Team notification email failed — check Resend config/domain verification');
     return res.status(200).json({ ok: true });
   } catch (err) {
     console.error('submit-lead error:', err);
