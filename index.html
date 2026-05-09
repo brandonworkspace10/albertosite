@@ -1258,7 +1258,7 @@ document.getElementById('quick-form').addEventListener('submit', function(e) {
   let currentStep = 1;
   const LS_KEY = 'slh_form_v1';
 
-  function showStep(n) {
+  function showStep(n, noScroll) {
     panels.forEach(p => p.classList.remove('active'));
     form.querySelector('.mf-panel[data-step="' + n + '"]').classList.add('active');
     curEl.textContent = n;
@@ -1266,7 +1266,7 @@ document.getElementById('quick-form').addEventListener('submit', function(e) {
     barFill.style.width = (n / TOTAL * 100) + '%';
     currentStep = n;
     saveState();
-    document.getElementById('offer-form').scrollIntoView({behavior:'smooth', block:'start'});
+    if (!noScroll) document.getElementById('offer-form').scrollIntoView({behavior:'smooth', block:'start'});
   }
 
   function isVisible(el) {
@@ -1411,7 +1411,7 @@ document.getElementById('quick-form').addEventListener('submit', function(e) {
         const cb = form.querySelector('input[name="issues"][value="' + val + '"]');
         if (cb) cb.checked = true;
       });
-      if (saved.step > 1) showStep(saved.step);
+      if (saved.step > 1) showStep(saved.step, true);
     } catch(e) {}
   }
   restoreState();
