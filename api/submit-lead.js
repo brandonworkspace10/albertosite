@@ -144,7 +144,7 @@ module.exports = async function handler(req, res) {
         <!-- CTA -->
         <tr>
           <td style="background:#ffffff;padding:0 36px 36px;text-align:center">
-            <a href="https://silverlynxhomes.com" style="display:inline-block;background:#2563EB;color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:8px;letter-spacing:-.01em">Visit Our Website</a>
+            <a href="https://www.silverlynxhomes.com" style="display:inline-block;background:#2563EB;color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:8px;letter-spacing:-.01em">Visit Our Website</a>
           </td>
         </tr>
 

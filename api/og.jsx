@@ -2,7 +2,7 @@ import { ImageResponse } from '@vercel/og';
 
 export const config = { runtime: 'edge' };
 
-const LOGO_URL = 'https://albertosite.vercel.app/assets/silver-lynx-horizontal-dark.png';
+const LOGO_URL = 'https://www.silverlynxhomes.com/assets/silver-lynx-horizontal-dark.png';
 
 export default function handler() {
   return new ImageResponse(
